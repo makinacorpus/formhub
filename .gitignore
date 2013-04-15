@@ -1,4 +1,5 @@
 /data
+salt_*password*
 error.log
 load_script.logs
 load_script.pid
@@ -50,7 +51,18 @@ celerybeat-schedule
 *.ropeproject
 .noseids
 
-gunicorn_cfg.py
-run_gunicorn.sh
-static
-celerybeat-schedule
+
+/cache
+/local
+/man
+/src
+/share
+/bin
+/downloads
+/eggs
+/local 
+/lib
+/include
+*pid
+*egg-info
+*pyc

@@ -1,0 +1,80 @@
+#
+# This file contains default values which are used
+# by the salt states deploying your project.
+# you may copy them to your relevant PILLAR file
+# before editing them.
+# If you need to add variables, this is where to begin.
+# Please keep defaults in there, but real passwords
+# must be putted inside pillar
+#
+# replace project_name in your pillar by
+# the current projectname
+# you can also merge parts of this file
+# with the relevant pillar
+makina-projects.projectname:
+  data:
+    app_root: "{project_root}"
+    media_source: "{app_root}/media"
+    DJANGO_SETTINGS_MODULE: makina.makina_settings
+    settings:
+      mysql_database: projectdb
+      google_client_id: foo
+      google_client_secret: secret
+      google_map_key: xxx
+      adminmail: mpa@makina-corpus.com
+      debug: false
+      dsm: '{DJANGO_SETTINGS_MODULE}'
+      timeout: 9000
+      enketo_token: abcdef
+      enketo_key: abcdef
+      media_root: "{media}"
+      mysql_db: formhub
+      host: {domain}
+      enketo_url: http://enketo.makina-corpus.net
+      rabbitmq_vhost: formhub
+    hosts:
+      rabbitmq: 127.0.0.1
+      mysql: 127.0.0.1
+      mongodb: 127.0.0.1
+    ports:
+      mysql: 3306
+      rabbitmq: 5672
+      mongodb: 27017
+    users:
+      django: '{cfg.user}'
+      admin: admin
+      rabbitmq: formhub
+      group: '{cfg.user}'
+      mongo: formhub
+      enketo: enketo
+      mysql: mysql
+    passwords:
+      admin:  secret
+      rabbitmq: secret
+      enketo: secret
+      mysql:  secret
+      django: {{salt['mc_utils.generate_stored_password']('formhub_admin')}}
+      mongo: secret
+    PROJECT: makina
+    domain: "{PROJECT}.mydomain.tld"
+    server_aliases: []
+    LANGUAGE_CODE: fr-fr
+    WSGI: "makina.wsgi:application"
+    nginx_upstreams: salt://makina-projects/{name}/files/nginx.upstreams.conf
+    nginx_vhost: salt://makina-projects/{name}/files/nginx.content.conf
+    admins:
+      - foo:
+          mail: "root@{domain}"
+          password: {{salt['mc_utils.generate_stored_password'](
+                          'formhub_web_admin')}}
+    static: "{data_root}/static"
+    media: "{data_root}/media"
+    host: localhost
+    port: 8180
+    workers: 1
+    DEBUG: False
+  env_defaults:
+    dev:
+      DEBUG: True
+
+# vim:set ft=yaml:

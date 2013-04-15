@@ -1,0 +1,89 @@
+--allow-all-external
+-f http://cairographics.org/releases/
+-f http://downloads.egenix.com/python/egenix-mx-base-3.2.4.tar.gz
+-f http://dist.plone.org/thirdparty/
+--allow-unverified cherrypy
+--allow-unverified genshi
+--allow-unverified mongodb
+#forked for packaging
+Cython==0.21.1
+numpy==1.7.1
+lxml==2.3.4
+-e git+https://github.com/makinacorpus/pandas.git@0_11_0_calanques#egg=pandas
+-e git+https://github.com/makinacorpus/pyxform.git#egg=pyxform
+-e git+https://github.com/jbalogh/django-nose.git#egg=django_nose
+-e git+https://github.com/makinacorpus/django-rest-swagger.git@calanques#egg=django-rest-swagger
+-e git+https://github.com/makinacorpus/elaphe.git@0.5.3_calanques#egg=elaphe
+# remove hardcoded reqs from 0.5.8.1 release
+-e git+https://github.com/makinacorpus/pybamboo.git@calanques#egg=pybamboo
+#formhub-app = git https://github.com/makinacorpus/formhub.git egg=false branch=makinacorpus
+CherryPy==3.2.2
+Django==1.5.1
+FormEncode==1.2.4
+Genshi==0.5
+Markdown==2.0.3
+MySQL-python==1.2.3
+Paste==1.7.5.1
+PasteDeploy==1.5.2
+PasteScript==1.7.5
+Pillow==2.4.0
+Pygments==1.5
+SQLAlchemy==0.7.3
+South==0.7.6
+Tempita==0.5.1
+WebError==0.10.3
+WebOb==1.2
+amqp==1.0.11
+anyjson==0.3.3
+billiard==2.7.3.27
+bpython==0.11
+celery==3.0.11
+collective.recipe.template==1.11
+coverage==3.5.2
+cryptacular==1.2.1
+dict2xml==1.1
+django-celery==3.0.10
+django-cors-headers==0.11
+django-debug-toolbar==0.9.4
+django-digest==1.13
+django-filter==0.7
+django-guardian==1.1.1
+django-jenkins==0.13.0
+django-registration==1.0
+django-social-auth==0.7.0
+django-templated-email==0.4.1
+djangorestframework==2.3.6
+docutils==0.12
+dpath==1.2-39
+egenix-mx-base==3.2.4
+elementtree==1.2.7-20070827-preview
+gdata==2.0.16
+geopy==0.94.2
+gunicorn==19.1.1
+httplib2==0.7.4
+kombu==2.5.10
+logilab-astng==0.24.0
+logilab-common==0.58.1
+meld3==0.6.9
+mock==1.0.1
+modilabs-python-utils==0.1.5
+nose==1.2.1
+openpyxl==1.5.8
+poster==0.8.1
+psycopg2==2.5.4
+pyOpenSSL==0.13
+pycairo==1.8.8
+pylint==0.25.2
+pymongo==2.7.2
+python-dateutil==1.5
+python-digest==1.7
+pytz==2013b
+recaptcha-client==1.0.6
+requests==1.2.3
+setuptools==7.0
+simplejson==2.5.2
+transaction==1.1.1
+unicodecsv==0.9.4
+xlrd==0.8.0
+xlwt==0.7.2
+wheel
