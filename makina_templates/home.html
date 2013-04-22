@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% load i18n %}
+
+
+{% block content %}
+
+<div id="main-display">
+	<div class="content">
+		<div class = "row-fluid">
+			<div class="span12">
+				<div class = "row-fluid">
+					<div class="span3">
+						<img src="/static/images/masthead/mobile.png" class="left">
+            </div>
+            <div class = "span9">
+              <div class = "caption">
+                <h1>Bienvenue sur le Gestionnaire de formulaires du <b>Parc national des Calanques</b></h1>
+                <p>
+                  Le gestionnaire de formulaires du <a href="http://www.calanques-parcnational.fr/">Parc national des Calanques</a>
+                  permet de cr&eacute;er, saisir, consulter et analyser l'ensemble des
+                  questionnaires de comptages c&ocirc;tiers des Calanques.
+                </p>
+                <p><a href="/accounts/register" class="btn-large btn-info pull-left" id="sign-up"> <strong> Sign Up </strong> <em>(It's free!)  </em> </a> </p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="display-unit" id = "how_it_works">
+	<div class="row-fluid">
+		<div class="title">
+      <p> A partir d'ici vous pouvez: </p>
+    </div>
+    <div class="span12">
+      <div>
+        <ul>
+          <li>
+            Acc&eacute;der &agrave; <a href="./forms/">la
+              liste des formulaires publics du Parc</a>.
+          </li>
+          <li>
+            Une fois dans cette liste vous pouvez
+            <a href="./gpegliasco/forms/ouest_calanques/form.xls">t&eacute;l&eacute;charger les mod&egrave;les
+              Excel associ&eacute;s</a> pour les modifier ou en cr&eacute;er de nouveaux &agrave; partir de ces derniers.
+          </li>
+          <li>
+            En cliquant sur <a href="./gpegliasco/forms/ouest_calanques">le nom
+              d'un formulaire</a> vous pouvez :
+            <ul>
+              <li>
+                <a href="./gpegliasco/forms/ouest_calanques/view-data">Voir</a> ou <a href="http://formulaires.makina-corpus.net/gpegliasco/forms/ouest_calanques/instance">consulter</a>
+                ses donn&eacute;es.
+              </li>
+              <li>
+                <a href="./gpegliasco/forms/ouest_calanques/enter-data">Remplir le formulaire en ligne</a>
+                ou <a href="./gpegliasco/forms/ouest_calanques/qrcode">depuis votre mobile</a>.
+              </li>
+            </ul>
+          </li>
+          <li>
+            Vous pouvez aussi t&eacute;l&eacute;charger l'application <a href="https://play.google.com/store/apps/details?id=org.odk.collect.android&hl=fr">ODK Collect</a> pour saisir les formulaires sur votre mobile et les d&eacute;poser sur le site une fois connect&eacute; &agrave; Internet.
+          </li>
+          <li>
+            Vous pouvez aussi vous <a href="./accounts/register/">cr&eacute;er un compte</a> utilisateur pour g&eacute;rer vos formulaires personnels.
+          </li>
+          <li>
+            Enfin, de nombreux plugins permettent d'analyser vos donn&eacute;es en fonction de vos besoins.
+          </li>
+        </ul>
+
+        <p>Nous vous souhaitons une bonne utilisation du site.</p>
+      </div>
+		</div>
+	</div>
+	<div class="span12">
+		<div class="formhub-stat">
+			<div class="num">
+				{{ num_forms|intcomma }}
+			</div>forms submitted
+			<div class="num">
+				{{ num_shared_forms|intcomma }}
+			</div>shared forms
+			<div class="num">
+				{{ num_users|intcomma }}
+			</div>formhubbers.
+		</div>
+	</div>
+</div>
+<div class = "separator"> </div>
+<script src="/static/js/slideshow.js"></script>
+{% endblock %}

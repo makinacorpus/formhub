@@ -1,0 +1,31 @@
+<!-- Piwik -->
+<script type="text/javascript">
+(function() {
+        var pkURL = (("https:" == document.location.protocol) ?  "https://piwik.makina-corpus.net/" : "http://piwik.makina-corpus.net/");
+        $.ajax({
+            url: pkURL + 'piwik.js',
+            dataType: "script",
+            success: pk_track
+        });
+        function pk_track(data, textStatus, jqxhr) {
+            try {
+                var piwikTracker = Piwik.getTracker(pkURL + "piwik.php", 9);
+                piwikTracker.trackPageView();
+                piwikTracker.enableLinkTracking();
+            } catch( err ) {}
+        }
+})();
+</script>
+<noscript><p><img src="http://piwik.makina-corpus.net/piwik.php?idsite=9" style="border:0" alt="" /></p></noscript>
+<!-- End Piwik Tracking Code -->
+{% load i18n %}
+<footer class="footer">
+  <div class="container">
+    <p>
+      <div class="span12 title-grey">
+        <a target="_blank" href="http://www.makina-corpus.com/" title="World Health Organization"><img src="http://depot.makina-corpus.org/public/logo.gif" class="center"/>
+        </a>
+      </div>
+    </p>
+  </div>
+</footer>
