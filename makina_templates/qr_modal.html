@@ -1,0 +1,25 @@
+{% load humanize %}
+{% load i18n %} 
+
+<div class="modal hide fade" id="popupmodal" style="width: auto; left:36%; margin-left: auto; margin-right: auto;" tabindex="-1" role="dialog">
+     <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h3>{%  trans "Mobile Form" %}</h3>
+    </div>
+
+    <div class="modal-body" style="text-align: center;">
+      <div>
+        Flasher ce QR code depuis votre mobile.<br/>
+        Le questionnaire s'ouvrira dans un navigateur du mobile et vous pourrez ensuite le remplir, même en mode déconnecté.
+      </div>
+         <div class="img_holder"/> </div>
+    </div>
+    <div class="modal-footer" style="text-align: center;">
+        
+      Si vous ne pouvez pas lire le QR Code, téléchargez l'application libre &nbsp; &nbsp; &nbsp; 
+        <a class="btn"
+            href="http://play.google.com/store/apps/details?id=com.google.zxing.client.android"
+            title="Barcode Scanner">Barcode Scanner</a>
+        
+    </div>
+</div> 
