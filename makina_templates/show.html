@@ -12,7 +12,7 @@
     <div id="mfeedback">&nbsp;</div>
 	<h3>
 	  <div style='vertical-align: middle'>
-	  <img src='{{ content_user.profile.gravatar }}' alt='' width='20' height='20' />
+	  <img src='{{ content_user.profile.gravatar }}' alt='gravatar' width='20' height='20' />
 	  <a href="{% url user_profile content_user.username %}">{{ content_user.username }}</a> ({% trans "Owner" %}) /
 	  </div>
 	</h3>
@@ -122,7 +122,7 @@
             <span id="data-shared-private" class="label label-warning">{% trans "PRIVATE" %}</span>
         </h3>
         {% if xform.shared_data or can_view %}
-        {% if xform.submission_count > 0 %}
+        {% if not xform.encrypted and xform.submission_count > 0 %}
         <br>
         <div class="btn-toolbar" style="margin-bottom: 9px">
           <div class="btn-group">
@@ -133,6 +133,17 @@
             <ul class="dropdown-menu">
               <li>
                 <input class="input-xxlarge" type="text" size="16" value="{{base_url}}{% url odk_viewer.views.export_list content_user.username xform.id_string 'csv' %}"/>
+              </li>
+            </ul>
+          </div>
+          <div class="btn-group">
+            <a class="btn" href="{% url odk_viewer.views.export_list content_user.username xform.id_string 'csv_zip' %}" rel="tooltip" data-original-title="{% trans 'csv zip exports' %}"><i class="icon-download-alt"></i> <font color=#000>{% trans "csv zip" %}</font></a>
+            <button class="btn dropdown-toggle" data-toggle="dropdown">
+              <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+              <li>
+                <input class="input-xxlarge" type="text" size="16" value="{{base_url}}{% url odk_viewer.views.export_list content_user.username xform.id_string 'csv_zip' %}"/>
               </li>
             </ul>
           </div>
@@ -222,29 +233,44 @@
 		{% endif %}
 		{% endif %}
 		{% if can_edit or xform.is_crowd_form %}
-	    <div class="btn-toolbar" style="margin-bottom: 9px">
-          <div class="btn-group">
-		    <a class="btn btn-info" rel="tooltip" title="{% trans 'Webform' %}" href="{% url odk_logger.views.enter_data content_user.username xform.id_string %}">
-		      <i class="icon-edit icon-white"></i> {% trans "Enter Web Form" %}
-            </a>
-          </div> 
-          <div class="btn-group">
-            <a data-toggle="modal" data-target="#popupmodal" class="showqr btn" href="{% url get_qrcode xform.user.username xform.id_string %}"><i class="icon-tablet"></i> {% trans "Mobile" %}</a>
+          <div class="btn-toolbar" style="margin-bottom: 9px">
+              <span><!-- break the .btn-group + .btn-group rule that shows a margin before this group --></span>
+
+              <div class="btn-group" style="margin-bottom: 9px">
+                  <a class="btn btn-info" rel="tooltip" title="{% trans 'Webform' %}"
+                     href="{% url odk_logger.views.enter_data content_user.username xform.id_string %}">
+                      <i class="icon-edit icon-white"></i> {% trans "Enter Web Form" %}
+                  </a>
+                  <a data-toggle="modal" data-target="#popupmodal" class="showqr btn btn-info" href="{% url get_qrcode xform.user.username xform.id_string %}"><i class="icon-tablet"></i> {% trans "Mobile" %}</a>
+                  <a class="btn btn-info" rel="tooltip" title="{% trans 'Preview Form' %}" href="#preview-modal"
+                     data-toggle="modal">
+                      <i class="icon-check icon-white"></i> {% trans "Preview Form" %}
+                  </a>
+              </div>
+              <div id="preview-modal" class="modal hide fade">
+                  <div class="modal-header">
+                      <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                      <h3>{{ xform.title }} - {% trans "Preview" %}</h3>
+                  </div>
+                  <div class="modal-body">
+                      <iframe src="{% url main.views.enketo_preview content_user.username xform.id_string %}"></iframe>
+                  </div>
+                  <div class="modal-footer"></div>
+              </div>
           </div>
-        </div>
 		{% endif %}
         <br>
       <div class="span4">
         <script type="text/javascript">
             $(document).ready(function() {
-            
+
                 $(document).on("click", ".showqr", function () {
                   div_target = $(this).attr('data-target')
                   url = $(this).attr('href')
                   $(div_target+" .img_holder").load(url)
-                
+
                 });
-        
+
               {% if xform.shared_data %}
                 $('#data-shared-private').hide();
               {% else %}
@@ -398,6 +424,65 @@
             {% endif %}
             </div>
         </div>
+        <br/>
+        <div class="clearfix bordered">
+                <h3 data-toggle="collapse" data-target="#sms_tab">{% trans "SMS Support" %} (<acronym title="SMS Support is in beta stage now. Please use carefully as API and IDs might change.">beta</acronym>)</h3>
+                <div id='sms_tab' class="collapse">
+                <form action="{% url main.views.edit content_user.username xform.id_string %}" method="post" enctype="multipart/form-data">
+
+                {% if xform.allows_sms %}
+                    <p>{% blocktrans %}This form has enabled SMS submissions.{% endblocktrans %} {% blocktrans with id_string=xform.sms_id_string %}Submit to this form using the “<em>{{ id_string }}</em>” identifier.{% endblocktrans %}</p>
+                {% endif %}
+                {% if can_edit %}
+                    {% csrf_token %}
+                    <input type="hidden" name="enable_sms_support_trigger" value="yes" />
+                    <table>
+                    {{ sms_support_form.as_table }}
+                    </table>
+                    <input type="submit" class="btn btn-primary" value="{% trans "Save Changes" %}" />
+                {% endif %}
+            	</form>
+            	{% autoescape off %}
+            	<div class="sms_autodoc">
+            	{% if xform.allows_sms %}
+            	<h4>{% trans "Expected Format:" %}</h4>
+            	<p class="sms_autodoc_line_names alert alert-info">{{ sms_support_doc.line_names }}</p>
+            	<ul class="sms_autodoc_helpers">
+            	{% for helper in sms_support_doc.helpers %}
+            		<li class="sms_autodoc_helper"><sup class="sms_autodoc_helper_indice">{{ forloop.counter0 }}</sup> <span class="sms_autodoc_helper_name">{{ helper.0 }}:</span> <span class="sms_autodoc_helper_text">{{helper.1}}</span></li>
+            	{% endfor %}
+            	</ul>
+            	<h4>{% trans "Example" %}</h4>
+        		<p class="sms_autodoc_line_example alert alert-success">{{ sms_support_doc.line_values }}</p>
+            	{% else %}
+            		<p class="alert {{ sms_compatible.type }}">{{ sms_compatible.text }}</p>
+            	{% endif %}
+            	<h4>{% trans "Usage" %}</h4>
+            	<p>Note that for each case, you can select either the simplest form of the URL (containing only your username) or the one including the <em>id_string</em> of the form.</p>
+            	<p>The latter works without specifyin the <em>SMS Keyword</em> in front of every message.</p>
+            	<p>You would use it when your SMS Setup/Provider is used for only one form.</p>
+            	<select id="sms_support_api"><option>{% trans "Select an SMS API" %}</option>{% for provider in sms_providers_doc %}<option value="{{ provider.id }}">{{ provider.name }}</option>{% endfor %}<option value="generic">{% trans "Generic SMS API" %}</option></select>
+            	<div style="display:none;" class="sms_support_api_doc" id="sms_support_api_doc_generic">
+            		<p>{% trans "Use the Generic SMS API to write your own wrapper around Formhub." %}</p>
+            		<ul>
+            			<p>{% trans "Single SMS Submission" %}<br />[<strong>GET</strong>] <span class="sms_autodoc_example">{{ url_root }}{% url sms_submission username=content_user.username %}</span><br />
+							[<strong>GET</strong>] <span class="sms_autodoc_example">{{ url_root }}{% url sms_submission_form username=content_user.username id_string=xform.id_string %}</span><br />
+            				{% trans "Params:" %} <span class="sms_autodoc_params">{"identity": "SENDER PHONE NUMBER", "text": "TEXT MESSAGE"}<br />
+            				{% trans "Returns:" %} <span class="sms_autodoc_params">{"status": "STATUS", "message": "MESSAGE", "id": "ID"}</p>
+            			<p>{% trans "Multiple SMS Submissions at once" %}<br />[<strong>POST</strong>] <span class="sms_autodoc_example">{{ url_root }}{% url sms_submissions username=content_user.username %}</span><br/>
+            				[<strong>POST</strong>] <span class="sms_autodoc_example">{{ url_root }}{% url sms_submissions_form username=content_user.username id_string=xform.id_string %}</span><br />
+            				{% trans "Params:" %} <span class="sms_autodoc_params">{"messages": [{"identity": "SENDER PHONE NUMBER", "text": "TEXT MESSAGE"}, ]<br />
+            				{% trans "Returns:" %} <span class="sms_autodoc_params">[{"status": "STATUS", "message": "MESSAGE", "id": "ID"}, ]</p>
+            		</ul>
+            		<p><span class="sms_autodoc_params">STATUS</span>: {% trans "One of" %} <span class="sms_autodoc_params">ACCEPTED, REJECTED, PARSING_FAILED</span><br />
+            		   <span class="sms_autodoc_params">MESSAGE</span>: {% trans "Either an error or success message. Suitable for end user." %}<br />
+            		   <span class="sms_autodoc_params">ID</span>: {% trans "Only if successful. A unique ID of the submission." %}</p>
+            	</div>
+            	{% for provider in sms_providers_doc %}<div style="display:none;" class="sms_support_api_doc" id="sms_support_api_doc_{{ provider.id }}">{{ provider.doc }}</div>{% endfor %}
+            	{% endautoescape %}
+            	</div>
+            </div>
+        </div>
       </div>
       <div class="span4">
         {% if is_owner %}
@@ -511,6 +596,15 @@
 
 			var usernames =  {{ user_json_list|safe }}
 			$('#autocomplete').typeahead({source: usernames})
+
+		// SMS documentation switcher
+		$('#sms_support_api').change(function() {
+			$('.sms_support_api_doc').each(function (){
+				$(this).toggle(false);
+			});
+			var selected = $(this).val();
+			$('#sms_support_api_doc_' + selected).toggle(true);
+		});
   </script>
   {% include "qr_modal.html" %} 
 {% endblock %}
