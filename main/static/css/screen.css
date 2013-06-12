@@ -321,6 +321,27 @@ div.dataTables_paginate {
   margin: 0;
   padding-bottom: 1em;
 }
+.table tr.nested.group td,
+.table tr.nested.group {
+  width:100%;
+}
+.table tr.group  span{
+  color:#d96e27;
+}
+.table tr.nested.group td,
+.table tr.nested.group {
+  border-top: 2px solid;
+}
+.table td.attachments ul {
+  list-style:none;
+  margin:0 auto;
+  width:100%;
+}
+.table td.attachments ul li {
+  text-align:center;
+  margin:0 auto;
+  margin-bottom:10px;
+}
 table.table {
   clear: both;
   margin-bottom: 6px !important;
