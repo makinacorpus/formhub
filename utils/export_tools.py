@@ -21,7 +21,7 @@ from common_tags import ID, XFORM_ID_STRING, STATUS, ATTACHMENTS, GEOLOCATION,\
     BAMBOO_DATASET_ID, DELETEDAT, USERFORM_ID, INDEX, PARENT_INDEX,\
     PARENT_TABLE_NAME, SUBMISSION_TIME, UUID
 from odk_viewer.models.parsed_instance import _is_invalid_for_mongo,\
-    _encode_for_mongo, dict_for_mongo
+    _encode_for_mongo, dict_for_mongo, _decode_from_mongo
 
 
 # this is Mongo Collection where we will store the parsed submissions
@@ -147,6 +147,14 @@ class ExportBuilder(object):
     GROUP_DELIMITER_DOT = '.'
     GROUP_DELIMITER = GROUP_DELIMITER_SLASH
     GROUP_DELIMITERS = [GROUP_DELIMITER_SLASH, GROUP_DELIMITER_DOT]
+    TYPES_TO_CONVERT = ['int', 'decimal', 'date']#, 'dateTime']
+    CONVERT_FUNCS = {
+        'int': lambda x: int(x),
+        'decimal': lambda x: float(x),
+        'date': lambda x: datetime.strptime(x, '%Y-%m-%d').date(),
+        'dateTime': lambda x: datetime.strptime(
+            x[:19], '%Y-%m-%dT%H:%M:%S')
+    }
 
     XLS_SHEET_NAME_MAX_CHARS = 31
 
@@ -189,9 +197,11 @@ class ExportBuilder(object):
                         current_section['elements'].append({
                             'title': ExportBuilder.format_field_title(
                                 child.get_abbreviated_xpath(), field_delimiter),
-                            'xpath': child_xpath})
+                            'xpath': child_xpath,
+                            'type': child.bind.get(u"type")
+                        })
 
-                        if _is_invalid_for_mongo(child.name):
+                        if _is_invalid_for_mongo(child_xpath):
                             if current_section_name not in encoded_fields:
                                 encoded_fields[current_section_name] = {}
                             encoded_fields[current_section_name].update(
@@ -205,16 +215,14 @@ class ExportBuilder(object):
                                 'title': ExportBuilder.format_field_title(
                                     c.get_abbreviated_xpath(),
                                     field_delimiter),
-                                'xpath': c.get_abbreviated_xpath()}
-                                for c in child.children])
-                        select_multiples[current_section_name] =\
-                            {
-                                child.get_abbreviated_xpath():
-                                [
-                                    c.get_abbreviated_xpath() for
-                                    c in child.children
-                                ]
+                                'xpath': c.get_abbreviated_xpath(),
+                                'type': 'string'
                             }
+                                for c in child.children])
+                        _append_xpaths_to_section(
+                            current_section_name, select_multiples,
+                            child.get_abbreviated_xpath(),
+                            [c.get_abbreviated_xpath() for c in child.children])
 
                     # split gps fields within this section
                     if child.bind.get(u"type") == GEOPOINT_BIND_TYPE:
@@ -226,14 +234,21 @@ class ExportBuilder(object):
                                 {
                                     'title': ExportBuilder.format_field_title(
                                         xpath, field_delimiter),
-                                    'xpath': xpath
+                                    'xpath': xpath,
+                                    'type': 'decimal'
                                 }
                                 for xpath in xpaths
                             ])
-                        gps_fields[current_section_name] =\
-                            {
-                                child.get_abbreviated_xpath(): xpaths
-                            }
+                        _append_xpaths_to_section(
+                            current_section_name,gps_fields,
+                            child.get_abbreviated_xpath(), xpaths)
+
+        def _append_xpaths_to_section(current_section_name, field_list, xpath,
+                                   xpaths):
+            if current_section_name not in field_list:
+                field_list[current_section_name] = {}
+            field_list[
+                current_section_name][xpath] = xpaths
 
         self.survey = survey
         self.select_multiples = {}
@@ -260,7 +275,7 @@ class ExportBuilder(object):
             selections = []
             if data:
                 selections = [
-                    '{0}/{1}'.format(
+                    u'{0}/{1}'.format(
                         xpath, selection) for selection in data.split()]
             row.update(
                 dict([(choice, choice in selections) for choice in choices]))
@@ -279,37 +294,77 @@ class ExportBuilder(object):
 
     @classmethod
     def decode_mongo_encoded_fields(cls, row, encoded_fields):
-        # for each gps_field, get associated data and split it
         for xpath, encoded_xpath in encoded_fields.iteritems():
             if row.get(encoded_xpath):
                 val = row.pop(encoded_xpath)
                 row.update({xpath: val})
         return row
 
+    @classmethod
+    def decode_mongo_encoded_section_names(cls, data):
+        return dict([(_decode_from_mongo(k), v) for k, v in data.iteritems()])
+
+    @classmethod
+    def convert_type(cls, value, data_type):
+        """
+        Convert data to its native type e.g. string '1' to int 1
+        @param value: the string value to convert
+        @param data_type: the native data type to convert to
+        @return: the converted value
+        """
+        func = ExportBuilder.CONVERT_FUNCS.get(data_type, lambda x: x)
+        try:
+            return func(value)
+        except ValueError:
+            return value
+
     def pre_process_row(self, row, section):
         """
         Split select multiples, gps and decode . and $
         """
+        section_name = section['name']
+
+        # first decode fields so that subsequent lookups have decoded field names
+        if section_name in self.encoded_fields:
+            row = ExportBuilder.decode_mongo_encoded_fields(
+                row, self.encoded_fields[section_name])
+
         if self.SPLIT_SELECT_MULTIPLES and\
-                section in self.select_multiples:
+                section_name in self.select_multiples:
             row = ExportBuilder.split_select_multiples(
-                row, self.select_multiples[section])
+                row, self.select_multiples[section_name])
 
-        if section in self.gps_fields:
+        if section_name in self.gps_fields:
             row = ExportBuilder.split_gps_components(
-                row, self.gps_fields[section])
+                row, self.gps_fields[section_name])
 
-        if section in self.encoded_fields:
-            row = ExportBuilder.split_gps_components(
-                row, self.encoded_fields[section])
+        # convert to native types
+        for elm in section['elements']:
+            # only convert if its in our list and its not empty, just to
+            # optimize
+            value = row.get(elm['xpath'])
+            if elm['type'] in ExportBuilder.TYPES_TO_CONVERT\
+                    and value is not None and value != '':
+                row[elm['xpath']] = ExportBuilder.convert_type(
+                    value, elm['type'])
+
+        # convert submission type - xls truncates this to just date
+        #if row.get(SUBMISSION_TIME):
+        #    row[SUBMISSION_TIME] = ExportBuilder.convert_type(
+        #        row[SUBMISSION_TIME], 'dateTime')
 
         return row
 
     def to_zipped_csv(self, path, data, *args):
+        def encode_if_str(row, key):
+            val = row.get(key)
+            if isinstance(val, basestring):
+                return val.encode('utf-8')
+            return val
+
         def write_row(row, csv_writer, fields):
             csv_writer.writerow(
-                [u"{0}".format(row.get(field, '')).encode('utf-8')
-                 for field in fields])
+                [encode_if_str(row, field) for field in fields])
 
         csv_defs = {}
         for section in self.sections:
@@ -320,16 +375,20 @@ class ExportBuilder(object):
 
         # write headers
         for section in self.sections:
-            fields = [
-                element['title'] for element in
-                section['elements']] + self.EXTRA_FIELDS
-            csv_defs[section['name']]['csv_writer'].writerow(fields)
+            fields = [element['title'] for element in section['elements']]\
+                + self.EXTRA_FIELDS
+            csv_defs[section['name']]['csv_writer'].writerow(
+                [f.encode('utf-8') for f in fields])
 
         index = 1
         indices = {}
         survey_name = self.survey.name
         for d in data:
-            output = dict_to_joined_export(d, index, indices, survey_name)
+            # decode mongo section names
+            joined_export = dict_to_joined_export(d, index, indices,
+                                                  survey_name)
+            output = ExportBuilder.decode_mongo_encoded_section_names(
+                joined_export)
             # attach meta fields (index, parent_index, parent_table)
             # output has keys for every section
             if survey_name not in output:
@@ -349,12 +408,12 @@ class ExportBuilder(object):
                 row = output.get(section_name, None)
                 if type(row) == dict:
                     write_row(
-                        self.pre_process_row(row, section_name),
+                        self.pre_process_row(row, section),
                         csv_writer, fields)
                 elif type(row) == list:
                     for child_row in row:
                         write_row(
-                            self.pre_process_row(child_row, section_name),
+                            self.pre_process_row(child_row, section),
                             csv_writer, fields)
             index += 1
 
@@ -425,7 +484,10 @@ class ExportBuilder(object):
         indices = {}
         survey_name = self.survey.name
         for d in data:
-            output = dict_to_joined_export(d, index, indices, survey_name)
+            joined_export = dict_to_joined_export(d, index, indices,
+                                                  survey_name)
+            output = ExportBuilder.decode_mongo_encoded_section_names(
+                joined_export)
             # attach meta fields (index, parent_index, parent_table)
             # output has keys for every section
             if survey_name not in output:
@@ -445,12 +507,12 @@ class ExportBuilder(object):
                 row = output.get(section_name, None)
                 if type(row) == dict:
                     write_row(
-                        self.pre_process_row(row, section_name),
+                        self.pre_process_row(row, section),
                         ws, fields, work_sheet_titles)
                 elif type(row) == list:
                     for child_row in row:
                         write_row(
-                            self.pre_process_row(child_row, section_name),
+                            self.pre_process_row(child_row, section),
                             ws, fields, work_sheet_titles)
             index += 1
 
@@ -528,7 +590,7 @@ def generate_export(export_type, extension, username, id_string,
     dir_name, basename = os.path.split(export_filename)
 
     # get or create export object
-    if(export_id):
+    if export_id:
         export = Export.objects.get(id=export_id)
     else:
         export = Export(xform=xform, export_type=export_type)
