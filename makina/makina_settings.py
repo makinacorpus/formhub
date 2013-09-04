@@ -1,4 +1,4 @@
-from settings import *
+from formhub.settings import *
 INSTALLED_APPS += ('makina',)
 THERE = PROJECT_ROOT + '/makina'
 TEMPLATE_DIRS = (THERE+'/templates',) + TEMPLATE_DIRS
