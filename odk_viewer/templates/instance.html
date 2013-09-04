@@ -277,7 +277,7 @@ function _attachment_url(name, size)
 }
 function _attachment_abs_url(name, size)
 {
-    return '{% url odk_viewer.views.attachment_url %}' + size + '?media_file=' + name;
+    return '{% url "odk_viewer.views.attachment_url" %}' + size + '?media_file=' + name;
 }
 
 function cleanValue(cleanKey, value, valueIsArray) {
