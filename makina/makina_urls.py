@@ -1,6 +1,6 @@
 from django.conf.urls.defaults import patterns, include, url
 from django.conf import settings
-import urls
+from formhub import urls
 urlpatterns = patterns('',
     #change Language
 #    (r'^i18n/', include('django.conf.urls.i18n')),
