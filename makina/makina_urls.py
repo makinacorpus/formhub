@@ -1,6 +1,7 @@
 from django.conf.urls.defaults import patterns, include, url
 from django.conf import settings
 from formhub import urls
+
 urlpatterns = patterns('',
     #change Language
 #    (r'^i18n/', include('django.conf.urls.i18n')),
@@ -127,8 +128,9 @@ urlpatterns = patterns('',
 #    url(r'^media/(?P<path>.*)$', 'django.views.static.serve',
 #        {'document_root': settings.MEDIA_ROOT}),
 #
-) 
 
+    url(r'^(?P<username>[^/]+)/forms/(?P<id_string>[^/]+)/geojson$', 'makina.views.geojson', name='mongo_view_geojson'),
+)
 if settings.DEBUG:
     urlpatterns += patterns(
         'django.contrib.staticfiles.views',
