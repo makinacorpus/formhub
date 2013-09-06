@@ -131,8 +131,9 @@ def geojson(request, username=None, id_string=None):
         #"crs": crs,
         "type":  "FeatureCollection",
         "features": [],
-        #"properties": OrderedDict(),
+        "properties": OrderedDict(),
     }
+    top['properties']['name'] =id_string
     featuret = {
         #"crs": crs,
         "type": "Feature",
