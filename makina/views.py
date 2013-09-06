@@ -37,55 +37,50 @@ from stats.models import StatsCount
 from stats.tasks import stat_log
 from utils.decorators import is_owner
 from utils.logger_tools import response_with_mimetype_and_name, publish_form
-from utils.user_auth import set_profile_data,\
-    has_permission, helper_auth_helper, get_xform_and_perms,\
-    add_cors_headers
+from utils.user_auth import (
+    set_profile_data,
+    has_permission, helper_auth_helper, get_xform_and_perms,
+    add_cors_headers,
+    check_and_set_user,
+    check_and_set_user_and_form,
+)
 
 
 from pyxform.question import Question
+
+from collections import OrderedDict
 
 #from djgeojson.http import HttpJSONResponse
 #from djgeojson.serializers import Serializer as GeoJSONSerializer
 #from djgeojson import GEOJSON_DEFAULT_SRID
 
 
-def check_and_set_user(request, username):
+def noauth_check_and_set_user(request, username):
     content_user = None
     try:
         content_user = User.objects.get(username=username)
     except User.DoesNotExist:
         return HttpResponseRedirect("/")
-    return content_user  
+    return content_user
 
 
-def check_and_set_user_and_form(username, id_string, request):
+def noauth_check_and_set_user_and_form(username, id_string, request):
     xform = get_object_or_404(
         XForm, user__username=username, id_string=id_string)
     owner = User.objects.get(username=username)
     return [xform, owner]
 
-@require_http_methods(["GET", "OPTIONS"]) 
+@require_http_methods(["GET", "OPTIONS"])
 def geojson(request, username=None, id_string=None):
     """
-    Returns all results as JSON.  If a parameter string is passed,
-    it takes the 'query' parameter, converts this string to a dictionary, an
-    that is then used as a MongoDB query string.
-
-    NOTE: only a specific set of operators are allow, currently $or and $and.
-    Please send a request if you'd like another operator to be enabled.
-
-    NOTE: Your query must be valid JSON, double check it here,
-    http://json.parser.online.fr/
-
-    E.g. api?query='{"last_name": "Smith"}'
+    Return form instances (records) as GeoJson
+    Points Collection.
     """
     if request.method == "OPTIONS":
         response = HttpResponse()
         add_cors_headers(response)
         return response
     helper_auth_helper(request)
-    helper_auth_helper(request)
-
     xform, owner = check_and_set_user_and_form(username, id_string, request)
 
     if not xform:
@@ -112,7 +107,7 @@ def geojson(request, username=None, id_string=None):
     datad = xform.data_dictionary()
     odata = dict([
         (dd, aa) for dd, aa in
-        [(d, datad.get_element(d)) 
+        [(d, datad.get_element(d))
          for d in datad.get_headers(include_additional_headers=True)]
          if isinstance(aa, Question) or aa is None
     ])
@@ -135,11 +130,9 @@ def geojson(request, username=None, id_string=None):
     top = {
         #"crs": crs,
         "type":  "FeatureCollection",
-        
         "features": [],
-        #"properties": { 
-        #}, 
-    }                                 
+        #"properties": OrderedDict(),
+    }
     featuret = {
         #"crs": crs,
         "type": "Feature",
@@ -147,20 +140,37 @@ def geojson(request, username=None, id_string=None):
             "type": "Point",
             "coordinates": [-1, -1],
         },
-        "properties": { 
-        },
     }
+    def sortdata(item):
+        i = 1
+        if item[0] in ['_geolocation']:
+            i = 2
+        return i, item[0], item[1]
+    def sort_keys(item):
+        base = item[0]
+        key = base
+        pref = ''
+        if key in ['geoloc_type']:
+            pref += '0500'
+        elif key.startswith('links/'):
+            pref += '1000'
+        elif key in ['start']:
+            pref += '3000'
+        elif key in ['today']:
+            pref += '3500'
+        elif key in ['end']:
+            pref += '4000'
+        elif key.startswith('_'):
+            pref += '6000'
+        else:
+            pref += '5000'
+        return pref+'_'+key
     for i, record in enumerate(records[:]):
-        points = {}
+        points = OrderedDict()
         locs = []
         ddrecord = records[i]
         robj = copy.deepcopy(record)
         rdata = robj.items()
-        def sortdata(item):
-            i = 1
-            if item[0] in ['_geolocation']:
-                i = 2
-            return i, item[0], item[1]
         # put some fields at end to let other ones override !
         rdata.sort(key=sortdata)
         for k, data in rdata:
@@ -172,7 +182,7 @@ def geojson(request, username=None, id_string=None):
                 if isinstance(data, basestring):
                     data = data.split()
                 if (
-                    isinstance(data, (tuple, list)) 
+                    isinstance(data, (tuple, list))
                     and (len(data) > 1)
                     and (not None in data)):
                     point = (float(data[1]), float(data[0]))
@@ -195,27 +205,43 @@ def geojson(request, username=None, id_string=None):
         for idg, p in points.items():
             feature = copy.deepcopy(featuret)
             feature["geometry"]["coordinates"] = p
-            feature["properties"] = copy.deepcopy(record)
-            feature["properties"]["geoloc_type"] = idg
+            feature["properties"] = OrderedDict()
+            feature["properties"] = OrderedDict()
+            datas = ddrecord.items()
+            datas.append(("geoloc_type", idg))
+            fburl = reverse(
+                'main.views.show',
+                kwargs = {
+                    'username': username,
+                    'id_string': record['_xform_id_string'],
+                })
             burl = reverse(
-                'odk_viewer.views.instance', 
+                'odk_viewer.views.instance',
                 kwargs = {
                     'username': username,
                     'id_string': record['_xform_id_string'],
                 })
             buri = request.build_absolute_uri(burl)
-            feature["properties"]["formhub_view"] = (
-                buri + '#/%s' % record['_id']
-            )
+            fburi = request.build_absolute_uri(fburl)
+            datas.append(("links/formhub/view/form", fburi))
+            datas.append(("links/formhub/view/instance",
+                buri + '#/%s' % record['_id']))
+            datas.sort(key=sort_keys)
+            for k, data in datas:
+                feature['properties'][k] = data
             top['features'].append(feature)
-    response = HttpJSONResponse()
+    response = HttpResponse()
+    response['Content-Type'] = 'application/json'
+    response['Content-Description'] = 'File Transfer'
+    response['Content-Disposition'] = (
+        'attachment; name=%s.geojson; filename=%s.geojson' % (
+            record['_xform_id_string'],
+            record['_xform_id_string'],
+        )
+    )
     data = json.dumps(top, separators=(',',': '), indent=4,)
     response.write(data)
-    return response 
+    return response
 
-class HttpJSONResponse(HttpResponse):
-    def __init__(self, **kwargs):
-        kwargs['content_type'] = 'application/json'
-        super(HttpJSONResponse, self).__init__(**kwargs) 
 
 # vim:set et sts=4 ts=4 tw=80:
