@@ -129,6 +129,7 @@ urlpatterns = patterns('',
 #        {'document_root': settings.MEDIA_ROOT}),
 #
 
+    url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
     url(r'^(?P<username>[^/]+)/forms/(?P<id_string>[^/]+)/geojson$', 'makina.views.geojson', name='mongo_view_geojson'),
 )
 if settings.DEBUG:
