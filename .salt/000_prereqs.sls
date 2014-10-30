@@ -1,6 +1,9 @@
 {% set cfg = opts.ms_project %}
 {% set data = cfg.data %}
 {% set scfg = salt['mc_utils.json_dump'](cfg) %}
+include:
+  - makina-states.localsettings.jdk
+
 {{cfg.name}}-www-data:
   user.present:
     - name: www-data
