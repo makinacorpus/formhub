@@ -16,7 +16,6 @@ lxml==2.3.4
 -e git+https://github.com/makinacorpus/elaphe.git@formhub#egg=elaphe
 # remove hardcoded reqs from 0.5.8.1 release
 -e git+https://github.com/makinacorpus/pybamboo.git@calanques#egg=pybamboo
-#formhub-app = git https://github.com/makinacorpus/formhub.git egg=false branch=makinacorpus
 CherryPy==3.2.2
 Django==1.5.1
 FormEncode==1.2.4
