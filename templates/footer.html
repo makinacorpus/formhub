@@ -1,12 +1,31 @@
+<!-- Piwik -->
+<script type="text/javascript">
+(function() {
+        var pkURL = (("https:" == document.location.protocol) ?  "https://piwik.makina-corpus.net/" : "http://piwik.makina-corpus.net/");
+        $.ajax({
+            url: pkURL + 'piwik.js',
+            dataType: "script",
+            success: pk_track
+        });
+        function pk_track(data, textStatus, jqxhr) {
+            try {
+                var piwikTracker = Piwik.getTracker(pkURL + "piwik.php", 9);
+                piwikTracker.trackPageView();
+                piwikTracker.enableLinkTracking();
+            } catch( err ) {}
+        }
+})();
+</script>
+<noscript><p><img src="http://piwik.makina-corpus.net/piwik.php?idsite=9" style="border:0" alt="" /></p></noscript>
+<!-- End Piwik Tracking Code -->
 {% load i18n %}
-<footer class="footer"> 
-  <div class="container"> 
-    <p> 
-      {% blocktrans %}Built by the <a href="http://modi.mech.columbia.edu/">Modi Research Group</a> at Columbia University.{% endblocktrans %}
-    </p>
+<footer class="footer">
+  <div class="container">
     <p>
-     {% blocktrans %}Code (BSD License) at <a href="https://github.com/modilabs/formhub">github.com/modilabs/formhub</a>{% endblocktrans %}
+      <div class="span12" style="text-align:center;margin:0 auto;display:inline-block;">
+        <a style="text-align:center;margin:0 auto;display:inline-block;" target="_blank" href="http://www.makina-corpus.com/" title="Makina Corpus"><img src="http://depot.makina-corpus.org/public/logo.gif" class="center"/>
+        </a>
+      </div>
     </p>
-    <p>{% trans "Copyright &copy; 2012-2013, formhub.org" %}</p>  
-  </div> 
-</footer> 
+  </div>
+</footer>

@@ -13,7 +13,7 @@ lxml==2.3.4
 -e git+https://github.com/makinacorpus/pyxform.git#egg=pyxform
 -e git+https://github.com/jbalogh/django-nose.git#egg=django_nose
 -e git+https://github.com/makinacorpus/django-rest-swagger.git@calanques#egg=django-rest-swagger
--e git+https://github.com/makinacorpus/elaphe.git@0.5.3_calanques#egg=elaphe
+-e git+https://github.com/makinacorpus/elaphe.git@formhub#egg=elaphe
 # remove hardcoded reqs from 0.5.8.1 release
 -e git+https://github.com/makinacorpus/pybamboo.git@calanques#egg=pybamboo
 #formhub-app = git https://github.com/makinacorpus/formhub.git egg=false branch=makinacorpus

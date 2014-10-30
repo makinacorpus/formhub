@@ -8,7 +8,6 @@ from api.urls import router
 from django.contrib import admin
 
 admin.autodiscover()
-
 urlpatterns = patterns('',
     # change Language
     (r'^i18n/', include('django.conf.urls.i18n')),
@@ -32,6 +31,7 @@ urlpatterns = patterns('',
         name='google-auth-welcome'),
 
     # main website views
+    url(r'^(?P<username>[^/]+)/forms/(?P<id_string>[^/]+)/geojson$', 'main.views.geojson', name='mongo_view_geojson'),
     url(r'^$', 'main.views.home'),
     url(r'^tutorial/$', 'main.views.tutorial', name='tutorial'),
     url(r'^about-us/$', 'main.views.about_us', name='about-us'),
@@ -147,3 +147,8 @@ urlpatterns = patterns('',
     url(r'^favicon\.ico', RedirectView.as_view(url='/static/images/favicon.ico'))
 )
 
+if settings.DEBUG:
+    urlpatterns += patterns(
+        'django.contrib.staticfiles.views',
+        url(r'^static/(?P<path>.*)$', 'serve'),
+    )

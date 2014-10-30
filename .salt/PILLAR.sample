@@ -11,70 +11,74 @@
 # the current projectname
 # you can also merge parts of this file
 # with the relevant pillar
+
 makina-projects.projectname:
   data:
+    PROJECT: "formhub"
+    SITE_ID: 1
     app_root: "{project_root}"
+    htaccess: "/etc/{name}.webaccess"
+    py_root: "{project_root}/venv"
     media_source: "{app_root}/media"
-    DJANGO_SETTINGS_MODULE: makina.makina_settings
-    settings:
-      mysql_database: projectdb
-      google_client_id: foo
-      google_client_secret: secret
-      google_map_key: xxx
-      adminmail: mpa@makina-corpus.com
-      debug: false
-      dsm: '{DJANGO_SETTINGS_MODULE}'
-      timeout: 9000
-      enketo_token: abcdef
-      enketo_key: abcdef
-      media_root: "{media}"
-      mysql_db: formhub
-      host: {domain}
-      enketo_url: http://enketo.makina-corpus.net
-      rabbitmq_vhost: formhub
-    hosts:
-      rabbitmq: 127.0.0.1
-      mysql: 127.0.0.1
-      mongodb: 127.0.0.1
-    ports:
-      mysql: 3306
-      rabbitmq: 5672
-      mongodb: 27017
-    users:
-      django: '{cfg.user}'
-      admin: admin
-      rabbitmq: formhub
-      group: '{cfg.user}'
-      mongo: formhub
-      enketo: enketo
-      mysql: mysql
-    passwords:
-      admin:  secret
-      rabbitmq: secret
-      enketo: secret
-      mysql:  secret
-      django: {{salt['mc_utils.generate_stored_password']('formhub_admin')}}
-      mongo: secret
-    PROJECT: makina
-    domain: "{PROJECT}.mydomain.tld"
+    requirements: "{app_root}/requirements.txt"
+    domain: "{fqdn}"
     server_aliases: []
     LANGUAGE_CODE: fr-fr
-    WSGI: "makina.wsgi:application"
+    DATE_FORMAT: 'iso-8601'
+    DJANGO_SETTINGS_MODULE: "{PROJECT}.settings"
+    WSGI: "{PROJECT}.wsgi:application"
     nginx_upstreams: salt://makina-projects/{name}/files/nginx.upstreams.conf
     nginx_vhost: salt://makina-projects/{name}/files/nginx.content.conf
+    ALLOWED_HOSTS:
+      - localhost
+      - 127.0.0.1
+      - "{domain}"
+      - "{fqdn}"
+      - "10.5.0.1"
+    CORS_ORIGIN_ALLOW_ALL: 'True'
+    adminmail: "root@{domain}"
+    timezone: 'Europe/Paris'
     admins:
       - foo:
-          mail: "root@{domain}"
+          mail: "{adminmail}"
           password: {{salt['mc_utils.generate_stored_password'](
-                          'formhub_web_admin')}}
+                           'corpus-django_web_admin')}}
+    db:
+      ENGINE: django.db.backends.mysql
+      HOST:  127.0.0.1
+      PORT: 3306
+      NAME: formhub
+      USER: formhub
+      PASSORWD: formhub
     static: "{data_root}/static"
     media: "{data_root}/media"
     host: localhost
     port: 8180
     workers: 1
     DEBUG: False
+    py: "{py_root}/bin/python"
+    USE_X_FORWARDED_HOST: True
+    SECRET_KEY: "{{salt['mc_utils.generate_stored_password'](
+                           'corpus-django_web_secret_key', 64)}}"
+    google_client_id: foo
+    google_client_secret: secret
+    google_map_key: xxx
+    enketo_token: abcdef
+    enketo_key: abcdef
+    enketo_url: http://enketo.makina-corpus.net
+    rabbitmq_vhost: formhub
+    rabbitmq_host: 127.0.0.1
+    rabbitmq_user: formhub
+    rabbitmq_password: secret
+    rabbitmq_port: 5672
+    mongodb_host: 127.0.0.1
+    mongodb_port: 27017
+    mongodb_db: formhub
+    mongodb_user: formhub
+    mongodb_password: secret
+    #ADDITIONAL_TEMPLATE_DIRS:
+    #  - '{project_root}/calanques'
   env_defaults:
     dev:
       DEBUG: True
-
 # vim:set ft=yaml:

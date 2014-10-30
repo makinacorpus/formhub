@@ -18,13 +18,13 @@ include:
 
 {{ nginx.virtualhost(domain=data.domain, doc_root=data.static,
                      server_aliases=data.server_aliases,
+                     vhost_basename='corpus-'+cfg.name,
                      vh_top_source=data.nginx_upstreams,
                      vh_content_source=data.nginx_vhost,
                      cfg=cfg)}}
 {% set circus_data = {
-    'cmd': 'bin/gunicorn -k sync -t 9000 -w {2} -b {0}:{1} {3}'.format(
-      data.host, data.port, data.workers, data.WSGI
-  ),
+  'cmd': '{4}/bin/gunicorn -t 9000 -w {2} -b {0}:{1} {3}'.format(
+      data.host, data.port, data.workers, data.WSGI, data.py_root),
   'environment': {'DJANGO_SETTINGS_MODULE': cfg.data.DJANGO_SETTINGS_MODULE},
   'uid': cfg.user,
   'gid': cfg.group,
@@ -35,8 +35,8 @@ include:
 {{ circus.circusAddWatcher(cfg.name+'-django', **circus_data) }}
 
 {% set circus_data = {
-    'cmd': 'bin/python manage.py celery worker --schedule={4}/celery-schedule --pidfile={4}/celery.pid --loglevel=INFO'.format(
-      data.host, data.port, data.workers, data.WSGI, cfg.data_root
+    'cmd': '{4}/bin/python manage.py celery worker --schedule={5}/celery-schedule --pidfile={5}/celery.pid --loglevel=INFO'.format(
+      data.host, data.port, data.workers, data.WSGI, data.py_root, cfg.data_root
   ),
   'environment': {'DJANGO_SETTINGS_MODULE': cfg.data.DJANGO_SETTINGS_MODULE},
   'uid': cfg.user,
@@ -48,8 +48,8 @@ include:
 {{ circus.circusAddWatcher(cfg.name+'-celery', **circus_data) }}
 
 {% set circus_data = {
-    'cmd': 'bin/python manage.py celery beat --schedule={4}/celerybeat-schedule --pidfile={4}/celerybeat.pid --loglevel=INFO'.format(
-      data.host, data.port, data.workers, data.WSGI, cfg.data_root
+    'cmd': '{4}/bin/python manage.py celery beat --schedule={5}/celerybeat-schedule --pidfile={5}/celerybeat.pid --loglevel=INFO'.format(
+      data.host, data.port, data.workers, data.WSGI, data.py_root, cfg.data_root
   ),
   'environment': {'DJANGO_SETTINGS_MODULE': cfg.data.DJANGO_SETTINGS_MODULE},
   'uid': cfg.user,

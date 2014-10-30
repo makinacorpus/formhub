@@ -368,11 +368,13 @@ RECAPTCHA_PUBLIC_KEY = '6Ld52OMSAAAAAJJ4W-0TFDTgbznnWWFf0XuOSaB6'
 ENKETO_API_INSTANCE_IFRAME_URL = "https://enketo-dev.formhub.org/api_v1/instance/iframe"
 ENKETO_API_TOKEN = "---"
 
+ADDITIONAL_TEMPLATE_DIRS = tuple()
 try:
-    from local_settings import *
+    from .settings_local import *
 except ImportError:
     print("You can override the default settings by adding a "
           "local_settings.py file.")
+TEMPLATE_DIRS = ADDITIONAL_TEMPLATE_DIRS + TEMPLATE_DIRS
 
 # MongoDB
 if MONGO_DATABASE.get('USER') and MONGO_DATABASE.get('PASSWORD'):
@@ -388,3 +390,4 @@ MONGO_DB = MONGO_CONNECTION[MONGO_DATABASE['NAME']]
 # Clear out the test database
 if TESTING_MODE:
     MONGO_DB.instances.drop()
+

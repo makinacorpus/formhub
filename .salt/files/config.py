@@ -1,53 +1,73 @@
 #!/usr/bin/env python
-# WARNING
-# GENERATED AND OVERWRITTEN BY SALT
-#
 # -*- coding: utf-8 -*-
 __docformat__ = 'restructuredtext en'
-{% set cfg = salt['mc_utils.json_load'](data) %}
+{% set cfg = salt['mc_utils.json_load'](cfg) %}
 {% set data = cfg.data %}
 {% set settings = cfg.data.settings %}
+{% macro renderbool(opt)%}
+{{opt}} = {%if data.get(opt, False)%}True{%else%}False{%endif%}
+{% endmacro %}
+import json
+from django.utils.translation import gettext_lazy as _
 from pymongo import Connection
+SITE_ID={{data.SITE_ID}}
 SERVER_EMAIL = DEFAULT_FROM_EMAIL = 'root@{{cfg.fqdn}}'
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'OPTIONS': {
-            'db': '{{settings.mysql_db}}',
-            'host': '{{data.hosts.mysql}}',
-            'port': int('{{data.ports.mysql}}'),
-            'user': '{{data.users.mysql}}',
-            'passwd': '{{data.passwords.mysql}}',
-        }
-    }
+    'default': json.loads("""
+{{salt['mc_utils.json_dump'](data.db)}}
+""".strip()),
 }
-WEBISTE_URL = 'http://{{settings.host}}'
-TOUCHFORMS_URL = 'http://localhost:9000/'
-DEBUG = '{{settings.debug}}'.lower().strip() == 'true'
-TIME_ZONE = 'Europe/Paris'
-LANGUAGE_CODE = 'fr-fr'
-MEDIA_URL = WEBISTE_URL+'/media/'
-ENKETO_URL = '{{settings.enketo_url}}/'
+{% set admint = None %}
 ADMINS = (
-    ('admin', '{{settings.adminmail}}'),
+    {% for dadmins in data.admins %}
+    {% for admin, data in dadmins.items() %}
+    {% if data %}{% set admint = (admin, data) %}{%endif %}
+    ('{{admin}}', '{{data.mail}}'),
+    {% endfor %}
+    {% endfor %}
+)
+{{renderbool('DEBUG') }}
+{% for i in data.server_aliases %}
+{% if i not in data.ALLOWED_HOSTS %}
+{% do data.ALLOWED_HOSTS.append(i) %}
+{% endif %}
+{% endfor %}
+CORS_ORIGIN_ALLOW_ALL = {{data.CORS_ORIGIN_ALLOW_ALL}}
+ALLOWED_HOSTS = {{data.ALLOWED_HOSTS}}
+DEFAULT_FROM_EMAIL = '{{data.adminmail}}'
+MEDIA_ROOT = '{{data.media}}'
+STATIC_ROOT = '{{data.static}}'
+SECRET_KEY = '{{data.SECRET_KEY}}'
+USE_X_FORWARDED_HOST={{data.USE_X_FORWARDED_HOST}}
+# Internationalization
+# https://docs.djangoproject.com/en/1.6/topics/i18n/
+DATE_FORMAT = '{{data.DATE_FORMAT}}'
+TIME_ZONE = '{{data.timezone}}'
+LANGUAGE_CODE = '{{data.LANGUAGE_CODE}}'
+LANGUAGES = (
+    ('fr', _('Français')),
+    ('it', _('Italia')),
+    ('en', _('English'))
 )
 
-BROKER_URL = 'amqp://{{data.users.rabbitmq}}:{{data.passwords.rabbitmq}}@{{data.hosts.rabbitmq}}:{{data.ports.rabbitmq}}/{{settings.rabbitmq_vhost}}'
-DEFAULT_FROM_EMAIL = '{{settings.adminmail}}'
+WEBISTE_URL = 'http://{{data.domain}}'
+TOUCHFORMS_URL = 'http://localhost:9000/'
+DEBUG = '{{data.DEBUG}}'.lower().strip() == 'true'
+MEDIA_URL = WEBISTE_URL+'/media/'
+ENKETO_URL = '{{data.enketo_url}}/'
+BROKER_URL = 'amqp://{{data.rabbitmq_user}}:{{data.rabbitmq_password}}@{{data.rabbitmq_host}}:{{data.rabbitmq_port}}/{{data.rabbitmq_vhost}}'
+DEFAULT_FROM_EMAIL = '{{data.adminmail}}'
 GOOGLE_STEP2_URI = WEBISTE_URL + '/gwelcome'
-GOOGLE_CLIENT_ID = '{{settings.google_client_id}}'
-GOOGLE_CLIENT_SECRET = '{{settings.google_client_secret}}'
+GOOGLE_CLIENT_ID = '{{data.google_client_id}}'
+GOOGLE_CLIENT_SECRET = '{{data.google_client_secret}}'
 MONGO_DATABASE = {
-    'HOST': '{{data.hosts.mongodb}}',
-    'PORT': int('{{data.ports.mongodb}}'),
-    'NAME': 'formhub',
-    'USER': '{{data.users.mongo}}',
-    'PASSWORD': '{{data.passwords.mongo}}'}
-ENKETO_API_TOKEN = '{{settings.enketo_token}}'
-ALLOWED_HOSTS = ['{{settings.host}}',
-                 '{{settings.host}}',
-                 '{{settings.host}}:443',
-                 '{{settings.host}}:80']
-MEDIA_ROOT = '{{settings.media_root}}'
-STATIC_ROOT = '{{data.static}}'
+    'HOST': '{{data.mongodb_host}}',
+    'PORT': int('{{data.mongodb_port}}'),
+    'NAME': '{{data.mongodb_db}}',
+    'USER': '{{data.mongodb_user}}',
+    'PASSWORD': '{{data.mongodb_password}}'}
+ENKETO_API_TOKEN = '{{data.enketo_token}}'
+{% if data.get('ADDITIONAL_TEMPLATE_DIRS', None) %}
+ADDITIONAL_TEMPLATE_DIRS = tuple({{data.ADDITIONAL_TEMPLATE_DIRS}})
+{% endif %}
 # vim:set et sts=4 ts=4 tw=80:

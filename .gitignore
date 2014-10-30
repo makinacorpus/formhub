@@ -1,4 +1,6 @@
 /data
+settings_local.py
+/venv
 salt_*password*
 error.log
 load_script.logs

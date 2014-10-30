@@ -3,6 +3,29 @@
 {% set scfg = salt['mc_utils.json_dump'](cfg) %}
 include:
   - makina-states.localsettings.jdk
+{{cfg.name}}-htaccess:
+  file.managed:
+    - name: {{data.htaccess}}
+    - source: ''
+    - user: www-data
+    - group: www-data
+    - mode: 770
+
+{% if data.get('http_users', {}) %}
+{% for userrow in data.http_users %}
+{% for user, passwd in userrow.items() %}
+{{cfg.name}}-{{user}}-htaccess:
+  webutil.user_exists:
+    - name: {{user}}
+    - password: {{passwd}}
+    - htpasswd_file: {{data.htaccess}}
+    - options: m
+    - force: true
+    - watch:
+      - file: {{cfg.name}}-htaccess
+{% endfor %}
+{% endfor %}
+{% endif %}  
 
 {{cfg.name}}-www-data:
   user.present:
@@ -22,13 +45,13 @@ prepreqs-{{cfg.name}}:
       - libcairomm-1.0-dev
       - libcairo2-dev
       - libsqlite3-dev
-      - libpq-dev
       - apache2-utils
       - autoconf
       - automake
       - build-essential
       - bzip2
       - gettext
+      - libpq-dev
       - libmysqlclient-dev
       - git
       - groff
@@ -66,6 +89,11 @@ prepreqs-{{cfg.name}}:
       - cython
       - python-numpy
       - zlib1g-dev
+      - libopenblas-dev 
+      - libatlas-dev 
+      - libatlas-base-dev 
+      - liblapack-dev
+
 
 {{cfg.name}}-dirs:
   file.directory:
@@ -74,6 +102,7 @@ prepreqs-{{cfg.name}}:
     - group: {{cfg.group}}
     - watch:
       - pkg: prepreqs-{{cfg.name}}
+      - user: {{cfg.name}}-www-data
     - names:
       - {{cfg.data_root}}/var/lib/celery/celerybeat-schedule/.empty;
       - {{cfg.data_root}}/cache

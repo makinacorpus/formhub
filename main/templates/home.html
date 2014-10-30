@@ -12,13 +12,17 @@
 			<div class="span12">
 				<div class = "row-fluid">
 					<div class="span3">
-						<img src="/static/images/masthead/mobile.png" alt="Mobile Phone" class="left">
-					</div>
-					<div class = "span9">
-						<div class = "caption">
-							<h1> Mobile data collection made easy </h1>
-							<p> formhub is built on a belief that data collection and analysis</p> <p> should be fast, flexible and reliable. And open source, of course. </p>
-							<p><a href="/accounts/register" class="btn-large btn-info pull-left" id="sign-up"> <strong> Sign Up </strong> <em>(It's free!)  </em> </a> </p>
+						<img src="/static/images/masthead/mobile.png" class="left">
+            </div>
+            <div class = "span9">
+              <div class = "caption">
+                <h1>Bienvenue sur le Gestionnaire de formulaires du <b>Parc national des Calanques</b></h1>
+                <p>
+                  Le gestionnaire de formulaires du <a href="http://www.calanques-parcnational.fr/">Parc national des Calanques</a>
+                  permet de cr&eacute;er, saisir, consulter et analyser l'ensemble des
+                  questionnaires de comptages c&ocirc;tiers des Calanques.
+                </p>
+                <p><a href="/accounts/register" class="btn-large btn-info pull-left" id="sign-up"> <strong> Sign Up </strong> <em>(It's free!)  </em> </a> </p>
 						</div>
 					</div>
 				</div>
@@ -30,194 +34,50 @@
 <div class="display-unit" id = "how_it_works">
 	<div class="row-fluid">
 		<div class="title">
-			How it Works
-		</div>
-		<div class="span12">
-			<div class="span4">
-				<img src="/static/images/how_works/design.png" alt="How It Works: Design" class="center">
-			</div>
-			<div class="span4">
-				<img src="/static/images/how_works/collect.png" alt="How It Works: Collect" class="center">
-			</div>
-			<div class="span4">
-				<img src="/static/images/how_works/analyze.png" alt="How It Works: Analyze" class="center">
-			</div>
-		</div>
-		<div class="span12">
-			<div class="span4">
-				<h2>
-					Design
-				</h2>
-				<p>
-					Author surveys quickly and easily in <br> Excel and have instant access on  <br> your Android phone. No advanced <br> technical degree required.
-				</p>
-			</div>
-			<div class="span4">
-				<h2>
-					Collect
-				</h2>
-				<p>
-					Easily distribute your survey on <br> an Android device or on the web. <br> Data connection not needed.
-				</p>
-			</div>
-			<div class="span4">
-				<h2>
-					Analyze
-				</h2>
-				<p>
-					Visualize your data as it is <br> collected, and gain understanding <br> with our powerful insights tools.
-				</p>
-			</div>
-		</div>
-	</div>
-</div>
+      <p> A partir d'ici vous pouvez: </p>
+    </div>
+    <div class="span12">
+      <div>
+        <ul>
+          <li>
+            Acc&eacute;der &agrave; <a href="./forms/">la
+              liste des formulaires publics du Parc</a>.
+          </li>
+          <li>
+            Une fois dans cette liste vous pouvez
+            <a href="./gpegliasco/forms/ouest_calanques/form.xls">t&eacute;l&eacute;charger les mod&egrave;les
+              Excel associ&eacute;s</a> pour les modifier ou en cr&eacute;er de nouveaux &agrave; partir de ces derniers.
+          </li>
+          <li>
 
-
-
-<div class="row-fluid">
-	<div class="span12 title-grey">
-		<h2>Proudly used by </h2>
-	</div>
-
-	<div id = "used_by">
-		<div class="row-fluid">
-			<div class = "span12">
-				<div class="span2">
-					<div class="img-outer">
-						<a href="http://www.who.int/en/" title="World Health Organization"><img src="/static/images/used_by/1.png" alt="World Health Organization" class="center"></a>
-					</div>
-				</div>
-
-				<div class="span4">
-					<div class="img-outer">
-						<a href="http://www.earth.columbia.edu/" title="The Earth Institute"><img src="/static/images/used_by/2.png" alt="The Earth Institute" class="center"></a>
-					</div>
-				</div>
-
-				<div class="span2">
-					<div class="img-outer">
-						<a href="http://nigeria.gov.ng/" title="Federal Republic of Nigeria"><img src="/static/images/used_by/3.png" alt="Federal Republic of Nigeria" class="center"></a>
-					</div>
-				</div>
-
-				<div class="span2">
-					<div class="img-outer">
-						<a href="http://dai.com/" title="DAI"><img src="/static/images/used_by/4.png" alt="DAI" class="center"></a>
-					</div>
-				</div>
-
-				<div class="span2">
-					<div class="img-outer">
-						<a href="http://www.pau.edu/" title="Punjab Agricultural University"><img src="/static/images/used_by/5.png" alt="Punjab Agricultural University" class="center"></a>
-					</div>
-				</div>
-
-			</div>
-		</div>
-	</div>
-
-	<div class="span12">
-		<div class="formhub-stat">
-			<div class="num">
-				{{ num_forms|intcomma }}
-			</div>forms submitted
-			<div class="num">
-				{{ num_shared_forms|intcomma }}
-			</div>shared forms
-			<div class="num">
-				{{ num_users|intcomma }}
-			</div>formhubbers.
+            En cliquant sur <a href="./gpegliasco/forms/ouest_calanques">le nom
+              d'un formulaire</a> vous pouvez :
+            <ul>
+              <li>
+                <a href="./gpegliasco/forms/ouest_calanques/view-data">Voir</a> ou <a href="./gpegliasco/forms/ouest_calanques/instance">consulter</a>
+                ses donn&eacute;es.
+              </li>
+              <li>Si votre formulaire comprend des donn&eacute;es g&eacute;or&eacute;f&eacute;renc&eacute;es, vous pouvez les <a href="./jipo/forms/miam_miam/map">visualiser sur une carte</a>.</li>
+              <li>
+                <a href="./gpegliasco/forms/ouest_calanques/enter-data">Remplir le formulaire en ligne</a>
+                ou <a href="./gpegliasco/forms/ouest_calanques/qrcode">depuis votre mobile</a> en flashant le QR code du formulaire.
+              </li>
+            </ul>
+          </li>
+          <li>
+            Vous pouvez aussi t&eacute;l&eacute;charger l'application <a href="https://play.google.com/store/apps/details?id=org.odk.collect.android&hl=fr">ODK Collect</a> pour saisir les formulaires sur votre mobile et les d&eacute;poser sur le site une fois connect&eacute; &agrave; Internet.
+          </li>
+          <li>
+            Vous pouvez aussi vous <a href="./accounts/register/">cr&eacute;er un compte</a> utilisateur pour g&eacute;rer vos formulaires personnels.
+          </li>
+          <li>
+            Enfin, de nombreux plugins permettent d'analyser vos donn&eacute;es en fonction de vos besoins.
+          </li>
+        </ul>
+        <p>Nous vous souhaitons une bonne utilisation du site.</p>
+      </div>
 		</div>
 	</div>
 </div>
-
-<div class = "separator"> </div>
-
-<div class="clear" id="features"></div>
-
-<div class = "row">
-		<div class="title">Data Collection Simplified</div>
-
-		<div id="section_features">
-				<div class="topimage">
-					<img src="../static/images/features/1.jpg" alt="features" id="featurescallout">
-				</div>
-
-
-			<div class="bottom-text">
-				<table id='featuretable'>
-					<tr>
-						<td class="feature_on" id='feature1'>
-							<a href='javascript:userClickedFeature(1)'>
-							<div class="featurehead">Seemless workflow.</div>
-							<div class="featuresubhead">Create and deploy a survey in just a few minutes and see results as they are submitted. A secure and reliable data repository is automatically created with powerful analytical tools a click away.</div>
-							</a>
-						</td>
-
-						<td class="feature_off" id='feature2'>
-							<a href='javascript:userClickedFeature(2)'>
-							<div class="featurehead">Survey authoring evolved.</div>
-							<div class="featuresubhead">Write your survey questions in Excel and formhub automatically translates them into a ready-to-use forms. Build logic, add media, and create forms of any length. Collaborate using Google Docs.</div>
-							</a>
-						</td>
-
-						<td class="feature_off" id='feature3'>
-							<a href='javascript:userClickedFeature(3)'>
-							<div class="featurehead">Understand better.</div>
-							<div class="featuresubhead">Survey information comes in real-time. Watch as data is plotted on color-coded maps, indicators generate charts, and photos are uploaded. formhub's analysis toolkit will transform the way you work.</div>
-							</a>
-						</td>
-					</tr>
-				</table>
-			</div>
-		</div>
-</div>
-
-<div class = "row">
-	<div class = "span12">
-			<div id="section_featurelist">
-					<div class="image">
-						<img src="/static/images/features/lock.png" alt="Security">
-					</div>
-					<div class="word">
-						<div class="featurehead"> Safe, secure and private. </div>
-						<div class="featuresubhead">All data transmission to and from formhub is secure with industry-standard encryption. Data is stored redundantly and all systems are backed up nightly. Additionally, data is only accessible to your password-protected account (with the default privacy settings).
-						</div>
-					</div>
-					<div class="clear"></div>
-					<div class="word">
-						<div class="featurehead">Offline & on the go.	</div>
-						<div class="featuresubhead"> Once you've uploaded your Excel-authored form, you can access it from any Android device using ODK Collect. Or generate a short URL and access the survey from a device with a web browser. Once cached, you can access the form and submit data while offline.
-						</div>
-					</div>
-					<div class="image">
-						<img src="/static/images/features/nosignal.png" alt="No Signal">
-					</div>
-					<div class="clear"></div>
-					<div class="image">
-						<img src="/static/images/features/map.png" alt="Map">
-					</div>
-					<div class="word">
-						<div class="featurehead">Built for sharing.</div>
-						<div class="featuresubhead">Since open data is a powerful force for development, we made sharing both data and surveys (ie, your XLSform) easy. You can share on the web or with other formhub users.
-						</div>
-					</div>
-					<div class="clear"></div>
-					<div class="word">
-						<div class="featurehead">Open source and extensible.</div>
-						<div class="featuresubhead">The code that powers formhub is available as a free and open-source basis. We believe that being open is critical to achieving our goal, to build the best data gathering platform, period. Additionally, powerful APIs make integration with external services simple.
-						</div>
-					</div>
-					<div class="image">
-							<img src="/static/images/features/checklist.png" alt="Free | Open Source | Extensible">
-					</div>
-			</div>
-		</div>
-</div>
-
-<br>
-<br>
-
-
 <script src="/static/js/slideshow.js"></script>
 {% endblock %}
