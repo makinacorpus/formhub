@@ -35,7 +35,17 @@ def get_dimensions((width, height), longest_side):
 
 
 def _save_thumbnails(image, path, size, suffix):
-    nm = NamedTemporaryFile(suffix='.%s' % settings.IMG_FILE_TYPE)
+    ext = path.split('.')[-1]
+    lsfx = {'jp2': ext,
+            'png': ext,
+            'bmp': ext,
+            'gif': ext,
+            'tiff': ext,
+            'jpeg': 'jpg',
+            'jpg': ext,
+            'tiff': ext}.get(ext.lower(),
+                             settings.IMG_FILE_TYPE)
+    nm = NamedTemporaryFile(suffix='.%s' % lsfx)
     default_storage = get_storage_class()()
     try:
         # Ensure conversion to float in operations

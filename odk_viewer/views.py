@@ -722,7 +722,7 @@ def attachment_url(request, size='medium'):
     else:
         if media_url:
             return redirect(media_url)
-    return HttpResponseNotFound(_(u'Error: Attachment not found'))
+    return HttpResponseNotFound(u'Error: Attachment not found')
 
 
 def instance(request, username, id_string):
