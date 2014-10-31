@@ -1,4 +1,5 @@
 /data
+/develop_eggs
 settings_local.py
 /venv
 salt_*password*
