@@ -130,3 +130,34 @@ superuser-{{cfg.name}}-{{admin}}:
       - file: superuser-{{cfg.name}}-{{admin}}
 {%endfor %}
 {%endfor %}
+
+{% set f = data.app_root + "/salt_domain.py" %}
+{{cfg.name}}-ensure-domain:
+  file.managed:
+    - contents: |
+                #!{{data.py}}
+                f = "{{f}}"
+                import os
+                try:
+                    import django;django.setup()
+                except Exception:
+                    pass
+                from django.contrib.sites import models
+                site = models.Site.objects.all()[0]
+                site.name = site.domain = '{{data.domain}}'
+                site.save()
+                if os.path.isfile(f):
+                    os.unlink(f)
+    - template: jinja
+    - mode: 700
+    - user: {{cfg.user}}
+    - group: {{cfg.group}}
+    - name: "{{f}}"
+  cmd.run:
+    {{set_env()}}
+    - name: "{{f}}"
+    - cwd: {{data.app_root}}
+    - user: {{cfg.user}}
+    - watch:
+      - file: {{cfg.name}}-ensure-domain
+      - cmd: syncdb-{{cfg.name}}
