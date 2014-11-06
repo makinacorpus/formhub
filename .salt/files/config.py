@@ -11,7 +11,8 @@ import json
 from django.utils.translation import gettext_lazy as _
 from pymongo import Connection
 SITE_ID={{data.SITE_ID}}
-SERVER_EMAIL = DEFAULT_FROM_EMAIL = 'root@{{cfg.fqdn}}'
+SERVER_EMAIL = '{{data.server_email}}'
+DEFAULT_FROM_EMAIL = '{{data.default_from_email}}'
 DATABASES = {
     'default': json.loads("""
 {{salt['mc_utils.json_dump'](data.db)}}
@@ -34,7 +35,6 @@ ADMINS = (
 {% endfor %}
 CORS_ORIGIN_ALLOW_ALL = {{data.CORS_ORIGIN_ALLOW_ALL}}
 ALLOWED_HOSTS = {{data.ALLOWED_HOSTS}}
-DEFAULT_FROM_EMAIL = '{{data.adminmail}}'
 MEDIA_ROOT = '{{data.media}}'
 STATIC_ROOT = '{{data.static}}'
 SECRET_KEY = '{{data.SECRET_KEY}}'
@@ -56,7 +56,6 @@ DEBUG = '{{data.DEBUG}}'.lower().strip() == 'true'
 MEDIA_URL = WEBISTE_URL+'/media/'
 ENKETO_URL = '{{data.enketo_url}}/'
 BROKER_URL = 'amqp://{{data.rabbitmq_user}}:{{data.rabbitmq_password}}@{{data.rabbitmq_host}}:{{data.rabbitmq_port}}/{{data.rabbitmq_vhost}}'
-DEFAULT_FROM_EMAIL = '{{data.adminmail}}'
 GOOGLE_STEP2_URI = WEBISTE_URL + '/gwelcome'
 GOOGLE_CLIENT_ID = '{{data.google_client_id}}'
 GOOGLE_CLIENT_SECRET = '{{data.google_client_secret}}'

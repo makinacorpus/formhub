@@ -58,6 +58,8 @@ makina-projects.projectname:
     DEBUG: False
     py: "{py_root}/bin/python"
     USE_X_FORWARDED_HOST: True
+    default_from_email: 'root@{fqdn}'
+    server_email: 'root@{fqdn}'
     SECRET_KEY: "{{salt['mc_utils.generate_stored_password'](
                            'corpus-django_web_secret_key', 64)}}"
     google_client_id: foo

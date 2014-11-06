@@ -41,7 +41,7 @@ Here all services are hosted on the same host.
 
     for i in mysql rabbitmq mongodb;do pushd /srv/projects/$i/project;git remote rm g;git remote add g https://github.com/makinacorpus/corpus-${i}.git;git fetch --all;git reset --hard g/master;popd;done
     pushd /srv/projects/formhub/project;git remote rm g;git remote add g https://github.com/makinacorpus/formhub.git;git fetch --all;git reset --hard g/master;popd
-    for i in mysql rabbitmq mongodb;do pushd /srv/projects/$i/project;git remote rm g;git remote add g https://github.com/makinacorpus/corpus-${i}.git;git fetch --all
+    pushd /srv/projects/enketo/project;git remote rm g;git remote add g https://github.com/makinacorpus/corpus-legacyenketo.git;git fetch --all;git reset --hard g/master;popd
 
 # configure mysql
 
